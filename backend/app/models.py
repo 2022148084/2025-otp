@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 
 from pydantic import EmailStr
 from sqlmodel import Field, Relationship, SQLModel
@@ -43,7 +44,7 @@ class UpdatePassword(SQLModel):
 class User(UserBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     hashed_password: str
-    items: list["Item"] = Relationship(back_populates="owner", cascade_delete=True)
+    files: list["File"] = Relationship(back_populates="owner", cascade_delete=True)
 
 
 # Properties to return via API, id is always required
@@ -55,42 +56,55 @@ class UsersPublic(SQLModel):
     data: list[UserPublic]
     count: int
 
+# ==========================================
+# [신규] File 관련 모델 (Item 대체)
+# ==========================================
 
 # Shared properties
-class ItemBase(SQLModel):
-    title: str = Field(min_length=1, max_length=255)
-    description: str | None = Field(default=None, max_length=255)
+class FileBase(SQLModel):
+    filename: str = Field(max_length=255) 
+    file_url: str | None = Field(default=None) 
+    extracted_text: str | None = Field(default=None) 
 
 
-# Properties to receive on item creation
-class ItemCreate(ItemBase):
+# Properties to receive on creation
+class FileCreate(FileBase):
     pass
 
 
-# Properties to receive on item update
-class ItemUpdate(ItemBase):
-    title: str | None = Field(default=None, min_length=1, max_length=255)  # type: ignore
+# Properties to receive on update
+class FileUpdate(FileBase):
+    extracted_text: str | None = Field(default=None)
 
 
 # Database model, database table inferred from class name
-class Item(ItemBase, table=True):
+class File(FileBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    
+    # User와 연결 (Foreign Key)
     owner_id: uuid.UUID = Field(
         foreign_key="user.id", nullable=False, ondelete="CASCADE"
     )
-    owner: User | None = Relationship(back_populates="items")
+    owner: User | None = Relationship(back_populates="files")
 
 
-# Properties to return via API, id is always required
-class ItemPublic(ItemBase):
+# Properties to return via API
+class FilePublic(FileBase):
     id: uuid.UUID
     owner_id: uuid.UUID
+    created_at: datetime
 
 
-class ItemsPublic(SQLModel):
-    data: list[ItemPublic]
+class FilesPublic(SQLModel):
+    # [수정] List -> list
+    data: list[FilePublic]
     count: int
 
+
+# ==========================================
+# 기타 공통 모델
+# ==========================================
 
 # Generic message
 class Message(SQLModel):

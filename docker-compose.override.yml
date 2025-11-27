@@ -79,6 +79,8 @@ services:
           action: rebuild
     # TODO: remove once coverage is done locally
     volumes:
+      - ./backend:/app
+      - /app/.venv  # 👈 익명 볼륨으로 .venv 제외!
       - ./backend/htmlcov:/app/htmlcov
     environment:
       SMTP_HOST: "mailcatcher"
