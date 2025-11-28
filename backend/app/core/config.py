@@ -34,6 +34,16 @@ class Settings(BaseSettings):
     SECRET_KEY: str = secrets.token_urlsafe(32)
     # 60 minutes * 24 hours * 8 days = 8 days
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
+
+    # ========================================================
+    # [추가] 외부 API 키 설정 (LLM & Naver)
+    # .env 파일에 없어도 서버가 죽지 않도록 기본값 None 설정
+    # ========================================================
+    OPENAI_API_KEY: str | None = None
+    NAVER_CLIENT_ID: str | None = None
+    NAVER_CLIENT_SECRET: str | None = None
+    # ========================================================
+
     FRONTEND_HOST: str = "http://localhost:5173"
     ENVIRONMENT: Literal["local", "staging", "production"] = "local"
 
