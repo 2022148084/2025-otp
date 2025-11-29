@@ -1,239 +1,65 @@
-# Full Stack FastAPI Template
+# 🚀 Place Recommender (프로젝트명 미정)
 
-<a href="https://github.com/fastapi/full-stack-fastapi-template/actions?query=workflow%3ATest" target="_blank"><img src="https://github.com/fastapi/full-stack-fastapi-template/workflows/Test/badge.svg" alt="Test"></a>
-<a href="https://coverage-badge.samuelcolvin.workers.dev/redirect/fastapi/full-stack-fastapi-template" target="_blank"><img src="https://coverage-badge.samuelcolvin.workers.dev/fastapi/full-stack-fastapi-template.svg" alt="Coverage"></a>
+### 🌟 1차 배포 완료: AI 기반 여행/장소 추천 시스템 구축 (MVP)
 
-## Technology Stack and Features
+클라우드(OCI) 환경에 Full-Stack 애플리케이션 구축 및 배포를 완료했습니다. 현재 백엔드 API와 프론트엔드 UI의 핵심 기능이 정상 작동합니다.
 
-- ⚡ [**FastAPI**](https://fastapi.tiangolo.com) for the Python backend API.
-    - 🧰 [SQLModel](https://sqlmodel.tiangolo.com) for the Python SQL database interactions (ORM).
-    - 🔍 [Pydantic](https://docs.pydantic.dev), used by FastAPI, for the data validation and settings management.
-    - 💾 [PostgreSQL](https://www.postgresql.org) as the SQL database.
-- 🚀 [React](https://react.dev) for the frontend.
-    - 💃 Using TypeScript, hooks, Vite, and other parts of a modern frontend stack.
-    - 🎨 [Chakra UI](https://chakra-ui.com) for the frontend components.
-    - 🤖 An automatically generated frontend client.
-    - 🧪 [Playwright](https://playwright.dev) for End-to-End testing.
-    - 🦇 Dark mode support.
-- 🐋 [Docker Compose](https://www.docker.com) for development and production.
-- 🔒 Secure password hashing by default.
-- 🔑 JWT (JSON Web Token) authentication.
-- 📫 Email based password recovery.
-- ✅ Tests with [Pytest](https://pytest.org).
-- 📞 [Traefik](https://traefik.io) as a reverse proxy / load balancer.
-- 🚢 Deployment instructions using Docker Compose, including how to set up a frontend Traefik proxy to handle automatic HTTPS certificates.
-- 🏭 CI (continuous integration) and CD (continuous deployment) based on GitHub Actions.
+---
 
-### Dashboard Login
+## 🌐 1. 시스템 현황 및 접속 정보
 
-[![API docs](img/login.png)](https://github.com/fastapi/full-stack-fastapi-template)
+| 구분 | 역할 | 주소 (URL) | 비고 |
+| :--- | :--- | :--- | :--- |
+| **어플리케이션 (FE)** | 사용자 인터페이스 | [https://2025-otp.pages.dev/](https://2025-otp.pages.dev/) | Cloudflare Pages (전 세계 CDN) |
+| **API 문서** | 백엔드 API 명세 | [https://146.56.106.252.nip.io/docs](https://146.56.106.252.nip.io/docs) | OCI 서버 (Caddy를 통한 HTTPS) |
+| **DB Admin** | 데이터베이스 관리 | SSH 터널링을 통해 로컬 `localhost:8080` 접속 | 보안상 외부 접속 차단 |
 
-### Dashboard - Admin
+---
 
-[![API docs](img/dashboard.png)](https://github.com/fastapi/full-stack-fastapi-template)
+## 🏛️ 2. 기술 스택 및 구조
 
-### Dashboard - Create User
+| 파트 | 기술 스택 | 서버 환경 | 특징 |
+| :--- | :--- | :--- | :--- |
+| **Frontend** | Vite + React + Chakra UI | Cloudflare Pages | 반응형 디자인 적용, 빠른 로딩 속도 |
+| **Backend** | FastAPI + Python + OpenAI/Naver API | OCI Ampere VM (4 Core / 24GB RAM) | Docker Compose 기반, Caddy로 HTTPS 자동 적용 |
+| **Database** | PostgreSQL | Docker Volume (영속성 확보) | `Item` 테이블 제거 및 `File` 테이블 사용 |
 
-[![API docs](img/dashboard-create.png)](https://github.com/fastapi/full-stack-fastapi-template)
+---
 
-### Dashboard - Items
+## ✅ 3. 현재 구현 완료된 주요 기능
 
-[![API docs](img/dashboard-items.png)](https://github.com/fastapi/full-stack-fastapi-template)
+1.  **배포 환경 구축:** OCI Ampere VM에 Docker/Git/Caddy 환경 구축 완료.
+2.  **인증 시스템:** JWT 기반의 **로그인, 회원가입, 로그아웃** 기능 구현 완료.
+3.  **핵심 비즈니스 로직:**
+    * **파일 처리:** `.txt` 파일 업로드 및 내용 추출 로직 완료.
+    * **AI 연동:** **OpenAI API**를 통한 텍스트 분석 및 Naver 검색용 키워드 3개 추출.
+    * **지도 시각화:** Naver Map API를 이용해 추천 장소 마커 및 경로 그리기 구현.
+4.  **UI/UX:**
+    * **반응형 레이아웃** 기본 설계 (데스크톱/모바일 UI 분리).
+    * 간단한 프론트엔드 흐름(업로드 -> 로딩 -> 결과) 구현 완료.
 
-### Dashboard - User Settings
+---
 
-[![API docs](img/dashboard-user-settings.png)](https://github.com/fastapi/full-stack-fastapi-template)
+## 🚧 4. 향후 TODO 및 논의 필요 사항
 
-### Dashboard - Dark Mode
+| 우선순위 | 항목 | 내용 | 비고 |
+| :--- | :--- | :--- | :--- |
+| **1순위** | **지도 UI/UX 개선** | 지도 표시 개수 (현재 3개 고정) 및 스타일링 수정, 마커 클릭 시 정보창(InfoWindow) 표시. | **시각적 완성도 최우선** |
+| **2순위** | **이미지/동영상 통합** | 모듈과 연동하여 `.png`, `.mp4` 파일도 업로드 가능하도록 확장. | **Cloudflare CDN (R2) 도입 필요** |
+| **3순위** | **페르소나 기능 통합** | 페르소나를 선택하는 화면 및 LLM 프롬프트 통합. | 기능 확장 |
+| **4순위** | **디자인 & 브랜딩** | 제품명 확정 및 로고 파일(정사각형, 직사각형) 제작. | |
+| **5순위** | **경로 저장 / 공유** | 추천 결과를 사용자 계정에 저장, URL 공유 기능 구현. | |
+| **백로그** | **시스템 최적화** | Redis 캐시 도입 (LLM 비용/속도 절감) 및 이메일 발송 기능 활성화. | |
 
-[![API docs](img/dashboard-dark.png)](https://github.com/fastapi/full-stack-fastapi-template)
+---
 
-### Interactive API Documentation
+## 🧪 5. 팀원 테스트 방법
 
-[![API docs](img/docs.png)](https://github.com/fastapi/full-stack-fastapi-template)
+현재 구현된 핵심 기능을 확인해주세요. (비밀번호 찾기 하지 마세요 이메일 보내는거 구현 안 함, 비밀번호 까먹으면 새로 계정 파세요)
 
-## How To Use It
-
-You can **just fork or clone** this repository and use it as is.
-
-✨ It just works. ✨
-
-### How to Use a Private Repository
-
-If you want to have a private repository, GitHub won't allow you to simply fork it as it doesn't allow changing the visibility of forks.
-
-But you can do the following:
-
-- Create a new GitHub repo, for example `my-full-stack`.
-- Clone this repository manually, set the name with the name of the project you want to use, for example `my-full-stack`:
-
-```bash
-git clone git@github.com:fastapi/full-stack-fastapi-template.git my-full-stack
-```
-
-- Enter into the new directory:
-
-```bash
-cd my-full-stack
-```
-
-- Set the new origin to your new repository, copy it from the GitHub interface, for example:
-
-```bash
-git remote set-url origin git@github.com:octocat/my-full-stack.git
-```
-
-- Add this repo as another "remote" to allow you to get updates later:
-
-```bash
-git remote add upstream git@github.com:fastapi/full-stack-fastapi-template.git
-```
-
-- Push the code to your new repository:
-
-```bash
-git push -u origin master
-```
-
-### Update From the Original Template
-
-After cloning the repository, and after doing changes, you might want to get the latest changes from this original template.
-
-- Make sure you added the original repository as a remote, you can check it with:
-
-```bash
-git remote -v
-
-origin    git@github.com:octocat/my-full-stack.git (fetch)
-origin    git@github.com:octocat/my-full-stack.git (push)
-upstream    git@github.com:fastapi/full-stack-fastapi-template.git (fetch)
-upstream    git@github.com:fastapi/full-stack-fastapi-template.git (push)
-```
-
-- Pull the latest changes without merging:
-
-```bash
-git pull --no-commit upstream master
-```
-
-This will download the latest changes from this template without committing them, that way you can check everything is right before committing.
-
-- If there are conflicts, solve them in your editor.
-
-- Once you are done, commit the changes:
-
-```bash
-git merge --continue
-```
-
-### Configure
-
-You can then update configs in the `.env` files to customize your configurations.
-
-Before deploying it, make sure you change at least the values for:
-
-- `SECRET_KEY`
-- `FIRST_SUPERUSER_PASSWORD`
-- `POSTGRES_PASSWORD`
-
-You can (and should) pass these as environment variables from secrets.
-
-Read the [deployment.md](./deployment.md) docs for more details.
-
-### Generate Secret Keys
-
-Some environment variables in the `.env` file have a default value of `changethis`.
-
-You have to change them with a secret key, to generate secret keys you can run the following command:
-
-```bash
-python -c "import secrets; print(secrets.token_urlsafe(32))"
-```
-
-Copy the content and use that as password / secret key. And run that again to generate another secure key.
-
-## How To Use It - Alternative With Copier
-
-This repository also supports generating a new project using [Copier](https://copier.readthedocs.io).
-
-It will copy all the files, ask you configuration questions, and update the `.env` files with your answers.
-
-### Install Copier
-
-You can install Copier with:
-
-```bash
-pip install copier
-```
-
-Or better, if you have [`pipx`](https://pipx.pypa.io/), you can run it with:
-
-```bash
-pipx install copier
-```
-
-**Note**: If you have `pipx`, installing copier is optional, you could run it directly.
-
-### Generate a Project With Copier
-
-Decide a name for your new project's directory, you will use it below. For example, `my-awesome-project`.
-
-Go to the directory that will be the parent of your project, and run the command with your project's name:
-
-```bash
-copier copy https://github.com/fastapi/full-stack-fastapi-template my-awesome-project --trust
-```
-
-If you have `pipx` and you didn't install `copier`, you can run it directly:
-
-```bash
-pipx run copier copy https://github.com/fastapi/full-stack-fastapi-template my-awesome-project --trust
-```
-
-**Note** the `--trust` option is necessary to be able to execute a [post-creation script](https://github.com/fastapi/full-stack-fastapi-template/blob/master/.copier/update_dotenv.py) that updates your `.env` files.
-
-### Input Variables
-
-Copier will ask you for some data, you might want to have at hand before generating the project.
-
-But don't worry, you can just update any of that in the `.env` files afterwards.
-
-The input variables, with their default values (some auto generated) are:
-
-- `project_name`: (default: `"FastAPI Project"`) The name of the project, shown to API users (in .env).
-- `stack_name`: (default: `"fastapi-project"`) The name of the stack used for Docker Compose labels and project name (no spaces, no periods) (in .env).
-- `secret_key`: (default: `"changethis"`) The secret key for the project, used for security, stored in .env, you can generate one with the method above.
-- `first_superuser`: (default: `"admin@example.com"`) The email of the first superuser (in .env).
-- `first_superuser_password`: (default: `"changethis"`) The password of the first superuser (in .env).
-- `smtp_host`: (default: "") The SMTP server host to send emails, you can set it later in .env.
-- `smtp_user`: (default: "") The SMTP server user to send emails, you can set it later in .env.
-- `smtp_password`: (default: "") The SMTP server password to send emails, you can set it later in .env.
-- `emails_from_email`: (default: `"info@example.com"`) The email account to send emails from, you can set it later in .env.
-- `postgres_password`: (default: `"changethis"`) The password for the PostgreSQL database, stored in .env, you can generate one with the method above.
-- `sentry_dsn`: (default: "") The DSN for Sentry, if you are using it, you can set it later in .env.
-
-## Backend Development
-
-Backend docs: [backend/README.md](./backend/README.md).
-
-## Frontend Development
-
-Frontend docs: [frontend/README.md](./frontend/README.md).
-
-## Deployment
-
-Deployment docs: [deployment.md](./deployment.md).
-
-## Development
-
-General development docs: [development.md](./development.md).
-
-This includes using Docker Compose, custom local domains, `.env` configurations, etc.
-
-## Release Notes
-
-Check the file [release-notes.md](./release-notes.md).
-
-## License
-
-The Full Stack FastAPI Template is licensed under the terms of the MIT license.
+1.  **[회원가입]** 및 **[로그인]** (주소: `https://2025-otp.pages.dev/`)
+2.  사이드바 **[추천 받기]** 메뉴 클릭.
+3.  **텍스트 파일** (`.txt`) 하나를 생성(신촌역 일식집 가자~, 밥먹고 카페 가자~ 이런 내용으로)하고 업로드 **[분석 시작하기]** 버튼 클릭.
+4.  결과 화면에서 **지도가 정상적으로 뜨는지** 확인.
+5.  브라우저 창 크기를 줄여서 **모바일/태블릿 반응형** 레이아웃이 잘 전환되는지 확인.
+6.  오른쪽 위에 있는 사용자 메뉴를 통해 **로그아웃** 확인.
