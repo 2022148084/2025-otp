@@ -103,7 +103,7 @@ function Recommendations() {
       <VStack gap={8} align="stretch"> 
         <Box textAlign="center" mb={4}>
           <Heading size="xl" mb={4} color="teal.600">
-            여행/약속 코스 추천받기
+            여행/약속 코스 추천
           </Heading>
           <Text fontSize="lg" color="gray.600">
             여행 계획, 약속 대화 내용, 혹은 관련 이미지/영상을 올려주세요.<br />
