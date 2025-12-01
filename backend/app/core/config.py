@@ -36,12 +36,20 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
 
     # ========================================================
-    # [추가] 외부 API 키 설정 (LLM & Naver)
-    # .env 파일에 없어도 서버가 죽지 않도록 기본값 None 설정
+    # [기존] 외부 API 키 (LLM & Naver)
     # ========================================================
     OPENAI_API_KEY: str | None = None
     NAVER_CLIENT_ID: str | None = None
     NAVER_CLIENT_SECRET: str | None = None
+    
+    # ========================================================
+    # [추가] Cloudflare R2 (S3) 설정
+    # ========================================================
+    R2_ACCOUNT_ID: str | None = None
+    R2_ACCESS_KEY_ID: str | None = None
+    R2_SECRET_ACCESS_KEY: str | None = None
+    R2_BUCKET_NAME: str | None = None
+    R2_PUBLIC_DOMAIN: str | None = None
     # ========================================================
 
     FRONTEND_HOST: str = "http://localhost:5173"

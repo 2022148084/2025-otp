@@ -24,6 +24,7 @@ dependencies = [
     "openai>=2.8.1",
     "requests>=2.32.3",
     "modal>=1.2.4",
+    "boto3>=1.42.0",
 ]
 
 [tool.uv]
