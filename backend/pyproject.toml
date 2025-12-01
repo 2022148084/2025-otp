@@ -23,6 +23,7 @@ dependencies = [
     "pyjwt<3.0.0,>=2.8.0",
     "openai>=2.8.1",
     "requests>=2.32.3",
+    "modal>=1.2.4",
 ]
 
 [tool.uv]
