@@ -10,9 +10,13 @@ interface AnalysisData {
 interface AnalysisStore {
   analysisData: AnalysisData | null
   setAnalysisData: (data: AnalysisData) => void
+  resultData: any | null
+  setResultData: (data: any) => void
 }
 
 export const useAnalysisStore = create<AnalysisStore>((set) => ({
   analysisData: null,
   setAnalysisData: (data) => set({ analysisData: data }),
+  resultData: null,
+  setResultData: (data) => set({ resultData: data }),
 }))

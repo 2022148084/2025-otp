@@ -28,8 +28,8 @@ export const Route = createFileRoute("/_layout/edit")({
 function Edit() {
   const { fileId } = Route.useSearch()
   const navigate = useNavigate()
-  
-  const { analysisData, setAnalysisData } = useAnalysisStore()
+
+  const { analysisData, setAnalysisData, setResultData } = useAnalysisStore()
   const [courses, setCourses] = useState<any[]>(analysisData?.courses || [])
 
   useEffect(() => {
@@ -49,7 +49,8 @@ function Edit() {
         },
       }),
     onSuccess: (newData: any) => {
-      setAnalysisData(newData.analysis) 
+      setAnalysisData(newData.analysis)
+      setResultData(newData) // resultData도 store에 저장
       navigate({ to: "/result", search: { fileId } })
     },
     onError: (err) => {

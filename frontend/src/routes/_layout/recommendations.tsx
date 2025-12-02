@@ -10,14 +10,15 @@ import {
 } from "@chakra-ui/react"
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { useMutation } from "@tanstack/react-query"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { FiUploadCloud, FiFileText } from "react-icons/fi"
 
 // Chakra UI v3 Toaster
 import { toaster } from "@/components/ui/toaster"
 
-// API 클라이언트
+// API 클라이언트 & 스토어
 import { FilesService } from "../../client"
+import { useAnalysisStore } from "../../store/analysisStore"
 
 export const Route = createFileRoute("/_layout/recommendations")({
   component: Recommendations,
@@ -26,12 +27,26 @@ export const Route = createFileRoute("/_layout/recommendations")({
 function Recommendations() {
   const [file, setFile] = useState<File | null>(null)
   const navigate = useNavigate()
+  
+  // [수정 1] 스토어에서 초기화 함수 가져오기
+  const { setAnalysisData, setResultData } = useAnalysisStore()
 
-  // 허용된 확장자 목록 (백엔드 로직과 일치시킴)
+  // [수정 2] 페이지 진입 시 기존 데이터 초기화 (꼬임 방지)
+  useEffect(() => {
+    setAnalysisData(null as any)
+    setResultData(null)
+    setFile(null)
+  }, [])
+
+  // 허용된 확장자 목록
   const ALLOWED_EXTENSIONS = ["txt", "png", "jpg", "jpeg", "heic", "mp4", "mov", "avi"]
 
   const uploadMutation = useMutation({
     mutationFn: (fileToUpload: File) => {
+      // [수정 3] 업로드 시작 직전에도 확실하게 데이터 비우기
+      setAnalysisData(null as any)
+      setResultData(null)
+
       return FilesService.createFile({
         formData: {
           file: fileToUpload,
@@ -59,30 +74,24 @@ function Recommendations() {
     },
   })
 
-  // [수정] 파일 선택 시 유효성 검사 로직 추가
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0]
     
     if (!selectedFile) return
 
-    // 확장자 추출 및 검사
     const fileExtension = selectedFile.name.split('.').pop()?.toLowerCase()
 
     if (!fileExtension || !ALLOWED_EXTENSIONS.includes(fileExtension)) {
-      // 1. 경고 토스터 띄우기
       toaster.create({
         title: "지원하지 않는 파일 형식입니다.",
         description: "텍스트(.txt), 이미지, 동영상 파일만 업로드 가능합니다.",
-        type: "error", // 빨간색 에러 타입 사용
+        type: "error",
         duration: 3000,
       })
-      
-      // 2. 선택된 파일 초기화 (UI상에서도 취소됨)
       e.target.value = "" 
       return
     }
 
-    // 유효하면 상태 저장
     setFile(selectedFile)
   }
 
@@ -126,7 +135,6 @@ function Recommendations() {
           
           <Input
             type="file"
-            // HTML 차원에서도 1차 필터링
             accept=".txt, .png, .jpg, .jpeg, .heic, .mp4, .mov, .avi"
             onChange={handleFileChange}
             height="100%"
