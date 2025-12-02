@@ -68,6 +68,29 @@ export const Body_login_login_access_tokenSchema = {
     title: 'Body_login-login_access_token'
 } as const;
 
+export const CourseStepSchema = {
+    properties: {
+        step: {
+            type: 'integer',
+            title: 'Step',
+            description: '단계 (1: 식사, 2: 카페, 3: 놀거리/술)'
+        },
+        category: {
+            type: 'string',
+            title: 'Category',
+            description: '카테고리 (식당, 카페, 이자카야 등)'
+        },
+        final_query: {
+            type: 'string',
+            title: 'Final Query',
+            description: '네이버 검색용 최종 문자열 (4단어 이하)'
+        }
+    },
+    type: 'object',
+    required: ['step', 'category', 'final_query'],
+    title: 'CourseStep'
+} as const;
+
 export const FilePublicSchema = {
     properties: {
         filename: {
@@ -163,6 +186,29 @@ export const MessageSchema = {
     title: 'Message'
 } as const;
 
+export const MetadataSchema = {
+    properties: {
+        location: {
+            type: 'string',
+            title: 'Location',
+            description: "대화에서 추출한 핵심 지역 (없으면 '강남역')"
+        },
+        group_name: {
+            type: 'string',
+            title: 'Group Name',
+            description: "모임 이름 (무조건 '친구 2인'으로 고정)"
+        },
+        date: {
+            type: 'string',
+            title: 'Date',
+            description: "약속 날짜 (무조건 '2025년 12월 7일'로 고정)"
+        }
+    },
+    type: 'object',
+    required: ['location', 'group_name', 'date'],
+    title: 'Metadata'
+} as const;
+
 export const NewPasswordSchema = {
     properties: {
         token: {
@@ -179,6 +225,24 @@ export const NewPasswordSchema = {
     type: 'object',
     required: ['token', 'new_password'],
     title: 'NewPassword'
+} as const;
+
+export const PersonaSchema = {
+    properties: {
+        name: {
+            type: 'string',
+            title: 'Name',
+            description: "참여자 이름 (예: '나', '어피치')"
+        },
+        traits: {
+            type: 'string',
+            title: 'Traits',
+            description: '대화에서 유추한 성격이나 취향을 요약한 한 문장'
+        }
+    },
+    type: 'object',
+    required: ['name', 'traits'],
+    title: 'Persona'
 } as const;
 
 export const PrivateUserCreateSchema = {
@@ -204,6 +268,63 @@ export const PrivateUserCreateSchema = {
     type: 'object',
     required: ['email', 'password', 'full_name'],
     title: 'PrivateUserCreate'
+} as const;
+
+export const RecommendationRequestSchema = {
+    properties: {
+        file_id: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'File Id'
+        },
+        courses: {
+            anyOf: [
+                {
+                    items: {
+                        '$ref': '#/components/schemas/CourseStep'
+                    },
+                    type: 'array'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Courses'
+        },
+        metadata: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/Metadata'
+                },
+                {
+                    type: 'null'
+                }
+            ]
+        },
+        personas: {
+            anyOf: [
+                {
+                    items: {
+                        '$ref': '#/components/schemas/Persona'
+                    },
+                    type: 'array'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Personas'
+        }
+    },
+    type: 'object',
+    title: 'RecommendationRequest'
 } as const;
 
 export const TokenSchema = {

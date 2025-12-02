@@ -190,11 +190,8 @@ export class PrivateService {
 export class RecommendationsService {
     /**
      * Create Recommendation
-     * 1. 파일의 텍스트를 읽어서
-     * 2. AI가 검색어 3개를 뽑고
-     * 3. 네이버 지도에서 장소를 찾아서 반환
      * @param data The data for the request.
-     * @param data.fileId
+     * @param data.requestBody
      * @returns unknown Successful Response
      * @throws ApiError
      */
@@ -202,9 +199,8 @@ export class RecommendationsService {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/api/v1/recommendations/',
-            query: {
-                file_id: data.fileId
-            },
+            body: data.requestBody,
+            mediaType: 'application/json',
             errors: {
                 422: 'Validation Error'
             }

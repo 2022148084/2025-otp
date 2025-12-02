@@ -13,6 +13,21 @@ export type Body_login_login_access_token = {
     client_secret?: (string | null);
 };
 
+export type CourseStep = {
+    /**
+     * 단계 (1: 식사, 2: 카페, 3: 놀거리/술)
+     */
+    step: number;
+    /**
+     * 카테고리 (식당, 카페, 이자카야 등)
+     */
+    category: string;
+    /**
+     * 네이버 검색용 최종 문자열 (4단어 이하)
+     */
+    final_query: string;
+};
+
 export type FilePublic = {
     filename: string;
     file_url?: (string | null);
@@ -35,9 +50,35 @@ export type Message = {
     message: string;
 };
 
+export type Metadata = {
+    /**
+     * 대화에서 추출한 핵심 지역 (없으면 '강남역')
+     */
+    location: string;
+    /**
+     * 모임 이름 (무조건 '친구 2인'으로 고정)
+     */
+    group_name: string;
+    /**
+     * 약속 날짜 (무조건 '2025년 12월 7일'로 고정)
+     */
+    date: string;
+};
+
 export type NewPassword = {
     token: string;
     new_password: string;
+};
+
+export type Persona = {
+    /**
+     * 참여자 이름 (예: '나', '어피치')
+     */
+    name: string;
+    /**
+     * 대화에서 유추한 성격이나 취향을 요약한 한 문장
+     */
+    traits: string;
 };
 
 export type PrivateUserCreate = {
@@ -45,6 +86,13 @@ export type PrivateUserCreate = {
     password: string;
     full_name: string;
     is_verified?: boolean;
+};
+
+export type RecommendationRequest = {
+    file_id?: (string | null);
+    courses?: (Array<CourseStep> | null);
+    metadata?: (Metadata | null);
+    personas?: (Array<Persona> | null);
 };
 
 export type Token = {
@@ -155,7 +203,7 @@ export type PrivateCreateUserData = {
 export type PrivateCreateUserResponse = (UserPublic);
 
 export type RecommendationsCreateRecommendationData = {
-    fileId: string;
+    requestBody: RecommendationRequest;
 };
 
 export type RecommendationsCreateRecommendationResponse = (unknown);
