@@ -8,14 +8,16 @@ from app.core.config import settings
 # ---------------------------------------------------------
 
 class Metadata(BaseModel):
-    # [수정] 설명을 더 명확하게 변경
     location: str = Field(description="핵심 지역명 (예: 강남역, 홍대). 출구 번호나 세부 위치 제외.")
-    group_name: str = Field(description="모임 이름 (무조건 '친구 2인'으로 고정)")
+    # [유지] 인원 자동 추론 (친구 N인)
+    group_name: str = Field(description="모임 인원 (포맷: '친구 N인'). 대화 참여자 수를 세어서 작성.")
     date: str = Field(description="약속 날짜 (무조건 '2025년 12월 7일'로 고정)")
 
 class Persona(BaseModel):
     name: str = Field(description="참여자 이름 (예: '나', '어피치')")
-    traits: str = Field(description="대화에서 유추한 성격이나 취향을 요약한 한 문장")
+    # [복구] 다시 리스트 형태로 변경 (태그 UI용)
+    likes: list[str] = Field(description="선호하는 음식, 분위기, 활동 키워드 리스트 (예: ['한식', '조용한', '사진'])")
+    dislikes: list[str] = Field(description="싫어하거나 피하는 것들 리스트 (예: ['시끄러운 곳', '해산물', '웨이팅'])")
 
 class CourseStep(BaseModel):
     step: int = Field(description="단계 (1: 식사, 2: 카페, 3: 놀거리/술)")
@@ -30,7 +32,7 @@ class AnalysisResult(BaseModel):
 
 def analyze_text_with_llm(text: str) -> AnalysisResult:
     """
-    카톡 대화를 분석하여 메타데이터, 페르소나, 3단계 추천 코스를 반환합니다.
+    카톡 대화를 분석하여 메타데이터, 상세 페르소나(선호/비선호), 3단계 추천 코스를 반환합니다.
     """
     
     if not settings.OPENAI_API_KEY:
@@ -39,29 +41,28 @@ def analyze_text_with_llm(text: str) -> AnalysisResult:
     client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
     # ---------------------------------------------------------
-    # [업그레이드된 프롬프트] 구조적 조합 (Constructive Mapping)
+    # [업그레이드된 프롬프트] 페르소나 태그화 (List) + 인원 자동 추론
     # ---------------------------------------------------------
     system_prompt = """
-    Role: You are a "Search Query Architect" for Naver Maps.
+    Role: You are a "Search Query Architect" & "Persona Analyst".
     
     Task:
-    1. Metadata: Extract Location. **FORCE** Date and Group Name to specific values.
-    2. Persona: Analyze participants' traits into a SINGLE sentence.
+    1. Metadata: Extract Location. Count participants for Group Name. **FORCE** Date.
+    2. Persona: Identify ALL participants. Extract their 'Likes' and 'Dislikes' as keyword lists.
     3. Course: Generate a 3-step course (Meal -> Cafe -> Activity/Pub).
-    4. Query Construction: Create 'final_query' based on the Critical Rules.
+    4. Query Construction: Create 'final_query' based on Critical Rules.
 
     # 🔴 Critical Rules:
 
     [Metadata Rules]
-    - Location: Extract ONLY the main area/station name (e.g., "강남역", "홍대", "성수"). 
-      * MUST remove specific details like "Exit 3"(3번 출구), "Near"(근처), "Intersection"(사거리).
-      * Bad: "홍대입구역 3번 출구" -> Good: "홍대" or "홍대입구역"
-    - Group Name: ALWAYS set to "친구 2인". (Do not calculate)
+    - Location: Extract ONLY the main area (e.g., "강남역", "홍대"). Remove details like "Exit 3".
+    - Group Name: Count the number of unique speakers in the chat and format strictly as "친구 N인" (e.g., "친구 2인", "친구 3인", "친구 4인"). Do NOT use terms like "Couples", "Family", or "Colleagues".
     - Date: ALWAYS set to "2025년 12월 7일". (Do not extract from chat)
 
     [Persona Rules]
-    - Identify 2 participants.
-    - 'traits': Summarize personality/preference into ONE descriptive sentence string in Korean.
+    - Identify ALL participants involved in the conversation.
+    - 'likes': Extract 2-4 keywords (List of Strings) about what they like (Food type, Atmosphere, Activity).
+    - 'dislikes': Extract 1-3 keywords (List of Strings) about what they dislike or want to avoid. If not mentioned, infer reasonable dislikes based on context (e.g., if they like quiet places, they likely dislike 'Noise').
 
     [Query Generation Rules for 'final_query']
     

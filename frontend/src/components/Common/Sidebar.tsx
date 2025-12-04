@@ -40,6 +40,8 @@ const Sidebar = () => {
             position="absolute"
             zIndex="100"
             m={4}
+            borderRadius="0"
+            _hover={{ bg: "white" }}
           >
             <FaBars />
           </IconButton>

@@ -92,10 +92,104 @@ function Result() {
   // 리스트 클릭 시 지도를 해당 위치로 이동
   const handlePlaceClick = (lat: number, lng: number, index: number) => {
     setSelectedIdx(index)
+    updateMarkerStyles(index)
     if (mapInstance.current && window.naver) {
       const moveLatLon = new window.naver.maps.LatLng(lat, lng)
-      mapInstance.current.panTo(moveLatLon) 
+      mapInstance.current.panTo(moveLatLon, { duration: 500, easing: "easeOutCubic" })
     }
+  }
+
+  // 마커 스타일 업데이트 함수
+  const updateMarkerStyles = (selectedIndex: number) => {
+    markersRef.current.forEach((marker, idx) => {
+      const isSelected = idx === selectedIndex
+      const scale = isSelected ? 1 : 1
+      const size = 28 * scale
+
+      // 3D 입체감을 위한 다층 그림자
+      const shadow = isSelected
+        ? `
+          0 1px 0 rgba(255, 255, 255, 0.4) inset,
+          0 -1px 0 rgba(0, 0, 0, 0.2) inset,
+          0 4px 8px rgba(0, 0, 0, 0.3),
+          0 8px 16px rgba(49, 151, 149, 0.4),
+          0 12px 24px rgba(49, 151, 149, 0.2)
+        `
+        : `
+          0 1px 0 rgba(255, 255, 255, 0.3) inset,
+          0 -1px 0 rgba(0, 0, 0, 0.15) inset,
+          0 2px 4px rgba(0, 0, 0, 0.2),
+          0 4px 8px rgba(0, 0, 0, 0.15)
+        `
+
+      // 입체감을 위한 그라디언트
+      const bgGradient = isSelected
+        ? 'linear-gradient(145deg, #4FD1C5 0%, #319795 50%, #2C7A7B 100%)'
+        : 'linear-gradient(145deg, #4FD1C5 0%, #38B2AC 50%, #319795 100%)'
+
+      marker.setIcon({
+        content: `
+          <div style="
+            position: relative;
+            width: ${size}px;
+            height: ${size}px;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transform: scale(${scale}) ${isSelected ? 'translateY(-2px)' : 'translateY(0)'};
+          ">
+            <div style="
+              position: absolute;
+              top: 0;
+              left: 0;
+              right: 0;
+              bottom: 0;
+              background: ${bgGradient};
+              border-radius: 50%;
+              box-shadow: ${shadow};
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              color: white;
+              font-weight: ${isSelected ? '900' : 'bold'};
+              font-size: ${isSelected ? '15px' : '13px'};
+              border: 2px solid rgba(255, 255, 255, 0.9);
+              ${isSelected ? 'animation: bounce3d 0.6s ease-out;' : ''}
+            ">
+              ${idx + 1}
+            </div>
+            ${isSelected ? `
+              <div style="
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: ${size * 1.5}px;
+                height: ${size * 1.5}px;
+                border-radius: 50%;
+                border: 2px solid rgba(49, 151, 149, 0.3);
+                animation: ripple 2s ease-out infinite;
+              "></div>
+            ` : ''}
+          </div>
+          <style>
+            @keyframes bounce3d {
+              0%, 100% { transform: translateY(0) scale(1); }
+              50% { transform: translateY(-8px) scale(1.05); }
+            }
+            @keyframes ripple {
+              0% {
+                transform: translate(-50%, -50%) scale(0.8);
+                opacity: 1;
+              }
+              100% {
+                transform: translate(-50%, -50%) scale(1.8);
+                opacity: 0;
+              }
+            }
+          </style>
+        `,
+        anchor: new window.naver.maps.Point(size / 2, size / 2),
+      })
+    })
   }
 
   // [핵심] 지도 초기화 함수
@@ -116,6 +210,14 @@ function Result() {
       map = new window.naver.maps.Map(mapRef.current, {
         center: new window.naver.maps.LatLng(37.5665, 126.9780),
         zoom: 14,
+        mapTypeId: window.naver.maps.MapTypeId.NORMAL,
+        scaleControl: false,
+        logoControl: false,
+        mapDataControl: false,
+        zoomControl: true,
+        zoomControlOptions: {
+          position: window.naver.maps.Position.TOP_RIGHT,
+        },
       })
       mapInstance.current = map
     }
@@ -128,17 +230,46 @@ function Result() {
       path.push(latLng)
       bounds.extend(latLng) // 영역 확장
 
-      // 2. 마커 생성
+      // 2. 마커 생성 (초기 3D 스타일)
       const marker = new window.naver.maps.Marker({
         position: latLng,
         map: map,
         title: place.name,
         icon: {
-          content: `<div style="background:#319795; color:white; width:24px; height:24px;
-                    border-radius:50%; text-align:center; line-height:24px; font-weight:bold;
-                    border:2px solid white; box-shadow:0 2px 5px rgba(0,0,0,0.3);">
-                    ${index + 1}</div>`,
-          anchor: new window.naver.maps.Point(12, 12), // 중심점 보정
+          content: `
+            <div style="
+              position: relative;
+              width: 28px;
+              height: 28px;
+              transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            ">
+              <div style="
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: linear-gradient(145deg, #4FD1C5 0%, #38B2AC 50%, #319795 100%);
+                border-radius: 50%;
+                box-shadow:
+                  0 1px 0 rgba(255, 255, 255, 0.3) inset,
+                  0 -1px 0 rgba(0, 0, 0, 0.15) inset,
+                  0 2px 4px rgba(0, 0, 0, 0.2),
+                  0 4px 8px rgba(0, 0, 0, 0.15);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-weight: bold;
+                font-size: 13px;
+                border: 2px solid rgba(255, 255, 255, 0.9);
+                cursor: pointer;
+              ">
+                ${index + 1}
+              </div>
+            </div>
+          `,
+          anchor: new window.naver.maps.Point(14, 14),
         },
       })
 
@@ -147,18 +278,37 @@ function Result() {
       // 마커 클릭 이벤트
       window.naver.maps.Event.addListener(marker, "click", () => {
         setSelectedIdx(index)
-        map.panTo(latLng)
+        updateMarkerStyles(index)
+        map.panTo(latLng, { duration: 500, easing: "easeOutCubic" })
       })
+
+      // 마커 호버 효과
+      const markerElement = marker.getElement()
+      if (markerElement) {
+        markerElement.addEventListener('mouseenter', () => {
+          if (selectedIdx !== index) {
+            markerElement.style.transform = 'scale(1.1)'
+          }
+        })
+        markerElement.addEventListener('mouseleave', () => {
+          if (selectedIdx !== index) {
+            markerElement.style.transform = 'scale(1)'
+          }
+        })
+      }
     })
 
-    // 3. 경로선 그리기
+    // 3. 경로선 그리기 (개선된 스타일)
     if (path.length > 1) {
       polylineRef.current = new window.naver.maps.Polyline({
         map: map,
         path: path,
         strokeColor: "#319795",
-        strokeWeight: 5,
-        strokeOpacity: 0.7,
+        strokeWeight: 4,
+        strokeOpacity: 0.8,
+        strokeStyle: "solid",
+        strokeLineCap: "round",
+        strokeLineJoin: "round",
       })
     }
 
