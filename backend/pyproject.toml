@@ -25,6 +25,7 @@ dependencies = [
     "requests>=2.32.3",
     "modal>=1.2.4",
     "boto3>=1.42.0",
+    "redis>=7.1.0",
 ]
 
 [tool.uv]

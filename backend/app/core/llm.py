@@ -1,7 +1,33 @@
+import os
+import hashlib
+import redis
 from datetime import datetime
 from pydantic import BaseModel, Field
 from openai import OpenAI
 from app.core.config import settings
+
+# ---------------------------------------------------------
+# [버전 관리]
+# ---------------------------------------------------------
+PROMPT_VERSION = "v1"  # 프롬프트 변경 시 이것만 올리면 됨
+MODEL_VERSION = "gpt-5.1"
+
+# ---------------------------------------------------------
+# [Redis 클라이언트 설정]
+# ---------------------------------------------------------
+# Docker 환경에서는 'redis', 로컬/기타 환경 대비 환경변수 지원
+redis_host = os.getenv("REDIS_HOST", "redis")
+
+try:
+    # decode_responses=True: 데이터를 bytes가 아닌 str로 자동 변환
+    redis_client = redis.Redis(host=redis_host, port=6379, db=0, decode_responses=True)
+    # 연결 테스트 (핑) - 실패 시 예외 발생하여 redis_client를 None으로 처리
+    redis_client.ping()
+    print(f"✅ Redis connected at {redis_host}")
+except Exception as e:
+    print(f"⚠️ Redis connection failed: {e}")
+    redis_client = None
+
 
 # ---------------------------------------------------------
 # [데이터 모델 정의]
@@ -9,13 +35,11 @@ from app.core.config import settings
 
 class Metadata(BaseModel):
     location: str = Field(description="핵심 지역명 (예: 강남역, 홍대). 출구 번호나 세부 위치 제외.")
-    # [유지] 인원 자동 추론 (친구 N인)
     group_name: str = Field(description="모임 인원 (포맷: '친구 N인'). 대화 참여자 수를 세어서 작성.")
     date: str = Field(description="약속 날짜 (무조건 '2025년 12월 7일'로 고정)")
 
 class Persona(BaseModel):
     name: str = Field(description="참여자 이름 (예: '나', '어피치')")
-    # [복구] 다시 리스트 형태로 변경 (태그 UI용)
     likes: list[str] = Field(description="선호하는 음식, 분위기, 활동 키워드 리스트 (예: ['한식', '조용한', '사진'])")
     dislikes: list[str] = Field(description="싫어하거나 피하는 것들 리스트 (예: ['시끄러운 곳', '해산물', '웨이팅'])")
 
@@ -33,16 +57,38 @@ class AnalysisResult(BaseModel):
 def analyze_text_with_llm(text: str) -> AnalysisResult:
     """
     카톡 대화를 분석하여 메타데이터, 상세 페르소나(선호/비선호), 3단계 추천 코스를 반환합니다.
+    (Redis 캐싱 적용: 동일한 텍스트 요청 시 OpenAI 호출 없이 반환)
     """
     
     if not settings.OPENAI_API_KEY:
         raise ValueError("❌ OpenAI API Key가 설정되지 않았습니다! .env 파일을 확인해주세요.")
 
-    client = OpenAI(api_key=settings.OPENAI_API_KEY)
+    # ---------------------------------------------------------
+    # [Cache Check] Redis 조회
+    # ---------------------------------------------------------
+    cache_key = ""
+    if redis_client:
+        try:
+            # 버전 정보를 포함한 캐시 키 생성
+            cache_input = f"{PROMPT_VERSION}:{MODEL_VERSION}:{text}"
+            text_hash = hashlib.md5(cache_input.encode('utf-8')).hexdigest()
+            cache_key = f"llm_analysis:{text_hash}"
+            
+            cached_data = redis_client.get(cache_key)
+            if cached_data:
+                print(f"⚡️ [Redis Hit] 캐시된 LLM 결과를 반환합니다. (Key: {cache_key})")
+                # JSON 문자열을 Pydantic 객체로 복원
+                return AnalysisResult.model_validate_json(cached_data)
+        except Exception as e:
+            print(f"⚠️ Redis Read Error: {e}")
 
     # ---------------------------------------------------------
-    # [업그레이드된 프롬프트] 페르소나 태그화 (List) + 인원 자동 추론
+    # [LLM Call] OpenAI 호출 (Cache Miss)
     # ---------------------------------------------------------
+    print("🤖 [Redis Miss] OpenAI API 호출 중...")
+    client = OpenAI(api_key=settings.OPENAI_API_KEY)
+
+    # 프롬프트 원본 유지
     system_prompt = """
     Role: You are a "Search Query Architect" & "Persona Analyst".
     
@@ -111,7 +157,7 @@ def analyze_text_with_llm(text: str) -> AnalysisResult:
     """
 
     completion = client.beta.chat.completions.parse(
-        model="gpt-4o-mini",
+        model="gpt-5.1",
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": f"Chat Log:\n\n{text}"},
@@ -119,4 +165,17 @@ def analyze_text_with_llm(text: str) -> AnalysisResult:
         response_format=AnalysisResult,
     )
 
-    return completion.choices[0].message.parsed
+    result = completion.choices[0].message.parsed
+
+    # ---------------------------------------------------------
+    # [Cache Save] 결과 Redis 저장
+    # ---------------------------------------------------------
+    if redis_client and cache_key:
+        try:
+            # Pydantic 객체를 JSON 문자열로 변환하여 저장 (TTL: 24시간)
+            redis_client.setex(cache_key, 86400, result.model_dump_json())
+            print(f"💾 [Redis Saved] 결과를 캐시에 저장했습니다. (TTL: 24h)")
+        except Exception as e:
+            print(f"⚠️ Redis Write Error: {e}")
+
+    return result
