@@ -9,11 +9,11 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-00C58E.svg)](https://fastapi.tiangolo.com)
 [![React](https://img.shields.io/badge/React-18.2+-61DAFB.svg)](https://reactjs.org/)
 
----
+
 
  ![System Architecture](/OTP2.drawio.png)
 
----
+
 ## 📋 목차
 
 - [프로젝트 개요](#-프로젝트-개요)
@@ -137,7 +137,7 @@
 ### 2️⃣ 파일 처리
 - [x] 텍스트 파일 업로드 및 파싱
 - [x] 이미지 업로드 → Modal GPU OCR
-- [x] 동영상 업로드 → Modal GPU STT
+- [x] 동영상 업로드 → Modal GPU 프레임 변환
 - [x] Cloudflare R2 연동 (파일 저장)
 
 ### 3️⃣ AI 분석
@@ -403,21 +403,12 @@ chore: 빌드 작업, 패키지 매니저 설정 등
 
 ---
 
-## 👥 팀원
-
-- **Backend Lead**: [Your Name]
-- **Frontend Lead**: [Your Name]
-- **DevOps**: [Your Name]
-- **Design**: [Your Name]
-
----
 
 ## 📞 문의
 
 프로젝트에 대한 질문이나 제안사항이 있으시면 Issue를 생성해주세요.
 
 - GitHub: [@2022148084](https://github.com/2022148084)
-- Email: your.email@example.com
 
 ---
 
