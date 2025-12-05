@@ -347,22 +347,22 @@ function Result() {
   return (
     <Flex direction={{ base: "column", md: "column", lg: "row" }} h="calc(100vh - 64px)">
       {/* 지도 영역 */}
-      <Box flex="1" h={{ base: "50vh", md: "50vh", lg: "100%" }} id="map" ref={mapRef} bg="gray.100" />
+      <Box flex="1" h={{ base: "50vh", md: "50vh", lg: "100%" }} id="map" ref={mapRef} bg={{ base: "gray.100", _dark: "gray.900" }} />
 
       {/* 목록 영역 */}
-      <Box 
-        w={{ base: "100%", md: "100%", lg: "450px" }} 
-        h={{ base: "50vh", md: "50vh", lg: "100%" }} 
-        overflowY="auto" 
-        p={5} 
-        bg="white" 
-        borderLeft={{ base: "none", lg: "1px solid #eee" }} 
-        borderTop={{ base: "1px solid #eee", lg: "none" }}
+      <Box
+        w={{ base: "100%", md: "100%", lg: "450px" }}
+        h={{ base: "50vh", md: "50vh", lg: "100%" }}
+        overflowY="auto"
+        p={5}
+        bg={{ base: "white", _dark: "gray.800" }}
+        borderLeft={{ base: "none", lg: { base: "1px solid #eee", _dark: "1px solid #2D3748" } }}
+        borderTop={{ base: { base: "1px solid #eee", _dark: "1px solid #2D3748" }, lg: "none" }}
       >
         <Flex justify="space-between" align="center" mb={4}>
           <Heading size="md">추천 코스</Heading>
-          <Button 
-            size="sm" 
+          <Button
+            size="sm"
             colorPalette="gray"
             variant="outline"
             onClick={() => navigate({ to: "/edit", search: { fileId } })}
@@ -384,14 +384,14 @@ function Result() {
             <Tabs.Content key={route.course_id} value={String(route.course_id)} p={0}>
               <VStack gap={3} align="stretch">
                 {route.places.map((place: any, idx: number) => (
-                  <Box 
-                    key={idx} 
-                    p={4} 
-                    border="1px solid" 
-                    borderColor={selectedIdx === idx ? "teal.500" : "gray.200"} 
-                    bg={selectedIdx === idx ? "teal.50" : "white"}
-                    borderRadius="lg" 
-                    _hover={{ bg: "teal.50", borderColor: "teal.500" }} 
+                  <Box
+                    key={idx}
+                    p={4}
+                    border="1px solid"
+                    borderColor={selectedIdx === idx ? "teal.500" : { base: "gray.200", _dark: "gray.600" }}
+                    bg={selectedIdx === idx ? { base: "teal.50", _dark: "teal.950" } : { base: "white", _dark: "gray.700" }}
+                    borderRadius="lg"
+                    _hover={{ bg: { base: "teal.50", _dark: "teal.950" }, borderColor: "teal.500" }}
                     cursor="pointer"
                     onClick={() => handlePlaceClick(place.lat, place.lng, idx)}
                   >

@@ -139,26 +139,26 @@ function Edit() {
       <VStack gap={8} align="stretch">
         
         <Box>
-          <Heading size="xl" mb={2} color="teal.600">키워드 편집</Heading>
-          <Text color="gray.500">
+          <Heading size="xl" mb={2} color={{ base: "red.600", _dark: "red.400" }}>키워드 편집</Heading>
+          <Text color={{ base: "gray.500", _dark: "gray.400" }}>
             AI가 분석한 내용을 수정하고 다시 추천받을 수 있습니다.
           </Text>
         </Box>
 
         {/* [1] 여행 개요 (Metadata) 표시 */}
-        <Box p={5} border="1px solid" borderColor="teal.200" borderRadius="xl" bg="teal.50">
-          <Heading size="sm" mb={3} color="teal.700">📅 여행 개요</Heading>
+        <Box p={5} border="1px solid" borderColor={{ base: "red.200", _dark: "red.800" }} borderRadius="xl" bg={{ base: "red.50", _dark: "red.950" }}>
+          <Heading size="sm" mb={3} color={{ base: "red.700", _dark: "red.300" }}>📅 여행 개요</Heading>
           <SimpleGrid columns={{ base: 1, md: 3 }} gap={4}>
             <Box>
-              <Text fontSize="xs" color="gray.500">📍 위치</Text>
+              <Text fontSize="xs" color={{ base: "gray.500", _dark: "gray.400" }}>📍 위치</Text>
               <Text fontWeight="bold" fontSize="lg">{analysisData.metadata?.location}</Text>
             </Box>
             <Box>
-              <Text fontSize="xs" color="gray.500">🗓️ 날짜</Text>
+              <Text fontSize="xs" color={{ base: "gray.500", _dark: "gray.400" }}>🗓️ 날짜</Text>
               <Text fontWeight="bold" fontSize="lg">{analysisData.metadata?.date}</Text>
             </Box>
             <Box>
-              <Text fontSize="xs" color="gray.500">👥 인원</Text>
+              <Text fontSize="xs" color={{ base: "gray.500", _dark: "gray.400" }}>👥 인원</Text>
               <Text fontWeight="bold" fontSize="lg">{analysisData.metadata?.group_name}</Text>
             </Box>
           </SimpleGrid>
@@ -167,11 +167,11 @@ function Edit() {
         <Separator />
 
         {/* [2] 페르소나 영역 (수정된 UI: 선호/비선호 태그) */}
-        <Box p={6} border="1px solid" borderColor="gray.200" borderRadius="xl" bg="gray.50">
+        <Box p={6} border="1px solid" borderColor={{ base: "gray.200", _dark: "gray.600" }} borderRadius="xl" bg={{ base: "gray.50", _dark: "gray.800" }}>
           <Heading size="md" mb={4}>페르소나 분석</Heading>
           <VStack gap={4} align="stretch">
             {personas.map((p: any, idx: number) => (
-              <Box key={idx} bg="white" p={5} borderRadius="md" boxShadow="sm">
+              <Box key={idx} bg={{ base: "white", _dark: "gray.700" }} p={5} borderRadius="md" boxShadow="sm">
                 {/* 이름 */}
                 <Flex gap={3} align="center" mb={3}>
                   <Badge colorPalette="purple" variant="solid" fontSize="1em" px={3} py={1} borderRadius="full">
@@ -431,16 +431,16 @@ function Edit() {
             {courses.map((step: any, index: number) => (
               <Box key={index} w="100%">
                 <Flex justify="space-between" mb={2}>
-                  <Text fontWeight="bold" color="teal.600">
-                    Step {step.step}. {step.category}
+                  <Text fontWeight="bold" color={{ base: "red.600", _dark: "red.400" }}>
+                    Step {step.step}
                   </Text>
                 </Flex>
-                <Input 
+                <Input
                   size="lg"
                   value={step.final_query}
                   onChange={(e) => handleKeywordChange(index, e.target.value)}
-                  borderColor="gray.300"
-                  _focus={{ borderColor: "teal.500", boxShadow: "0 0 0 1px teal.500" }}
+                  borderColor={{ base: "gray.300", _dark: "gray.600" }}
+                  _focus={{ borderColor: "red.500", boxShadow: "0 0 0 1px red.500" }}
                 />
               </Box>
             ))}
@@ -448,9 +448,9 @@ function Edit() {
         </Box>
 
         {/* [4] 재검색 버튼 */}
-        <Button 
-          colorPalette="teal" 
-          colorScheme="teal"
+        <Button
+          colorPalette="red"
+          colorScheme="red"
           size="lg"
           height="55px"
           fontSize="lg"

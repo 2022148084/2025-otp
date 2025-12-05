@@ -111,7 +111,7 @@ function Recommendations() {
     <Container maxW="container.md" py={12}>
       <VStack gap={8} align="stretch"> 
         <Box textAlign="center" mb={4}>
-          <Heading size="xl" mb={4} color="teal.600">
+          <Heading size="xl" mb={4} color={{ base: "black", _dark: "white" }}>
             여행/약속 코스 추천
           </Heading>
           <Text fontSize="lg" color="gray.600">
@@ -122,16 +122,16 @@ function Recommendations() {
 
         <Box
           border="3px dashed"
-          borderColor={file ? "teal.400" : "gray.300"}
+          borderColor={file ? "red.400" : { base: "gray.300", _dark: "gray.600" }}
           borderRadius="xl"
-          bg={file ? "teal.50" : "gray.50"}
+          bg={file ? { base: "red.50", _dark: "red.950" } : { base: "gray.50", _dark: "gray.800" }}
           p={10}
           textAlign="center"
           transition="all 0.2s"
-          _hover={{ borderColor: "teal.500", bg: "gray.100" }}
+          _hover={{ borderColor: "red.500", bg: { base: "gray.100", _dark: "gray.700" } }}
           position="relative"
         >
-          <Icon as={file ? FiFileText : FiUploadCloud} w={12} h={12} color="teal.500" mb={4} />
+          <Icon as={file ? FiFileText : FiUploadCloud} w={12} h={12} color="red.500" mb={4} />
           
           <Input
             type="file"
@@ -160,8 +160,8 @@ function Recommendations() {
         </Box>
 
         <Button
-          colorPalette="teal"
-          colorScheme="teal"
+          colorPalette="red"
+          colorScheme="red"
           size="lg"
           height="60px"
           fontSize="xl"
